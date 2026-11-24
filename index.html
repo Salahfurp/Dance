@@ -163,7 +163,7 @@ import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 {
 // ---------- settings ----------
-const DEF={world:'forest',players:['mia','leo','ella'],bg:'stage',track:'pop',mode:'free',count:2,mirror:true,facing:'user',zoom:true,hq:true,pip:false,musicOn:true,sel:0};
+const DEF={world:'forest',players:['pinkknight','mage','fairy'],bg:'stage',track:'pop',mode:'free',count:2,mirror:true,facing:'user',zoom:true,hq:true,pip:false,musicOn:true,sel:0};
 let S=Object.assign({},DEF);
 try{const s=JSON.parse(localStorage.getItem('dance-settings')||'null');if(s)S=Object.assign(S,s);}catch(e){}
 const save=()=>{try{localStorage.setItem('dance-settings',JSON.stringify(S));}catch(e){}};
@@ -242,72 +242,90 @@ function clearGroup(g){for(const c of [...g.children])g.remove(c);}
 
 // ---------- characters ----------
 const CH={
- mia:{n:'Mia',f:'W_Casual',cat:'girls',c:'#ff8fc8'},ella:{n:'Ella',f:'W_Medieval',cat:'girls',c:'#c38bff'},luna:{n:'Luna',f:'W_Witch',cat:'girls',c:'#8a5cff'},
- nova:{n:'Nova',f:'W_SciFi',cat:'girls',c:'#4fd3ff'},jade:{n:'Jade',f:'W_Adventurer',cat:'girls',c:'#5fcf6a'},roxy:{n:'Roxy',f:'W_Punk',cat:'girls',c:'#ff4fa3'},
- grace:{n:'Grace',f:'W_Formal',cat:'girls',c:'#ffd23f'},maya:{n:'Maya',f:'W_Suit',cat:'girls',c:'#9fb4c8'},sky:{n:'Sky',f:'W_Soldier',cat:'girls',c:'#8aa05a'},bea:{n:'Bea',f:'W_Worker',cat:'girls',c:'#ffb02e'},
- leo:{n:'Leo',f:'M_Casual',cat:'boys',c:'#3fa7ff'},max:{n:'Max',f:'M_Casual2',cat:'boys',c:'#ff7a1a'},kai:{n:'Kai',f:'M_Beach',cat:'boys',c:'#2bb3e0'},
- jack:{n:'Jack',f:'M_Adventurer',cat:'boys',c:'#5fcf6a'},zak:{n:'Zak',f:'M_Punk',cat:'boys',c:'#ff4fa3'},rex:{n:'King Rex',f:'M_King',cat:'boys',c:'#ffd23f'},
- astro:{n:'Astronaut',f:'M_Spacesuit',cat:'jobs',c:'#e8edf6'},officer:{n:'Officer',f:'M_Swat',cat:'jobs',c:'#3f7fe0'},farmer:{n:'Farmer',f:'M_Farmer',cat:'jobs',c:'#c8955a'},
- boss:{n:'Boss',f:'M_Suit',cat:'jobs',c:'#9fb4c8'},builder:{n:'Builder',f:'M_Worker',cat:'jobs',c:'#ffb02e'},
- knight:{n:'Knight',f:'K_Knight',cat:'heroes',c:'#c9d2e3',k:1},barbarian:{n:'Barbarian',f:'K_Barbarian',cat:'heroes',c:'#ff6a3a',k:1},mage:{n:'Mage',f:'K_Mage',cat:'heroes',c:'#8a5cff',k:1},
- rogue:{n:'Rogue',f:'K_Rogue',cat:'heroes',c:'#5fcf6a',k:1},ninja:{n:'Ninja',f:'K_Rogue_Hooded',cat:'heroes',c:'#6a6a80',k:1}
+ knight:{n:'Knight',f:'K_Knight',cat:'heroes',c:'#c9d2e3'},
+ mage:{n:'Mage',f:'K_Mage',cat:'heroes',c:'#8a5cff'},
+ rogue:{n:'Rogue',f:'K_Rogue',cat:'heroes',c:'#5fcf6a'},
+ barbarian:{n:'Barbarian',f:'K_Barbarian',cat:'heroes',c:'#ff6a3a'},
+ ninja:{n:'Ninja',f:'K_Rogue_Hooded',cat:'heroes',c:'#4a4a60'},
+ pinkknight:{n:'Rose Knight',f:'K_Knight',cat:'sparkle',c:'#ff8fc8',hue:330,tint:'#ffb3d9',tintA:0.45},
+ fairy:{n:'Fairy Mage',f:'K_Mage',cat:'sparkle',c:'#ff6fb5',hue:320,tint:'#ffd1ea',tintA:0.2},
+ lilac:{n:'Lilac Rogue',f:'K_Rogue',cat:'sparkle',c:'#b38cff',hue:275},
+ sunny:{n:'Sunny',f:'K_Barbarian',cat:'sparkle',c:'#ffd23f',hue:48},
+ aqua:{n:'Aqua Ninja',f:'K_Rogue_Hooded',cat:'sparkle',c:'#3fd3e0',hue:185,tint:'#9fe8ff',tintA:0.25},
+ goldknight:{n:'Gold Knight',f:'K_Knight',cat:'sparkle',c:'#ffcf3a',hue:45,tint:'#ffd86a',tintA:0.5},
+ icemage:{n:'Ice Mage',f:'K_Mage',cat:'sparkle',c:'#7fd4ff',hue:200,tint:'#d8f4ff',tintA:0.2},
+ bones:{n:'Bones',f:'K_Skeleton_Minion',cat:'spooky',c:'#e8e2d0'},
+ spook:{n:'Spooky Mage',f:'K_Skeleton_Mage',cat:'spooky',c:'#8a5cff'},
+ sneaky:{n:'Sneaky',f:'K_Skeleton_Rogue',cat:'spooky',c:'#5fcf6a'},
+ warrior:{n:'Warrior',f:'K_Skeleton_Warrior',cat:'spooky',c:'#ff6a3a'}
 };
 const CHK=Object.keys(CH);
-const CATS=[['all','All'],['girls','Girls'],['boys','Boys'],['jobs','Jobs'],['heroes','Heroes']];
+const CATS=[['all','All'],['heroes','Heroes'],['sparkle','Sparkle'],['spooky','Spooky']];
 const PC=['#ffd23f','#4fe3c1','#ff8fd0'];
-S.players=(S.players||[]).map((k,i)=>CH[k]?k:['mia','leo','ella'][i]||'mia');while(S.players.length<3)S.players.push(['mia','leo','ella'][S.players.length]);
-const MAPQ={hips:'Hips',spine:'Abdomen',chest:'Chest',neck:'Neck',head:'Head',uaL:'UpperArmL',laL:'LowerArmL',hL:'HandL',uaR:'UpperArmR',laR:'LowerArmR',hR:'HandR',ulL:'UpperLegL',llL:'LowerLegL',fL:'FootL',ulR:'UpperLegR',llR:'LowerLegR',fR:'FootR'};
+S.players=(S.players||[]).map((k,i)=>CH[k]?k:['pinkknight','mage','fairy'][i]||'knight');while(S.players.length<3)S.players.push(['pinkknight','mage','fairy'][S.players.length]);
 const MAPK={hips:'hips',spine:'spine',chest:'chest',head:'head',uaL:'upperarml',laL:'lowerarml',hL:'wristl',uaR:'upperarmr',laR:'lowerarmr',hR:'wristr',ulL:'upperlegl',llL:'lowerlegl',fL:'footl',ulR:'upperlegr',llR:'lowerlegr',fR:'footr'};
-const CHILD={uaL:'laL',laL:'hL',uaR:'laR',laR:'hR',ulL:'llL',llL:'fL',ulR:'llR',llR:'fR',spine:'chest'};
 const _q1=new THREE.Quaternion(),_q2=new THREE.Quaternion(),_q3=new THREE.Quaternion(),_v1=V3(),_v2=V3();
-function basisQ(r,u){const x=r.clone().normalize();const y=u.clone().sub(x.clone().multiplyScalar(u.dot(x))).normalize();const z=V3().crossVectors(x,y);return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z));}
+function basisQ(r,u){const x=r.clone().normalize();let y=u.clone().sub(x.clone().multiplyScalar(u.dot(x)));if(y.lengthSq()<1e-8)y=Math.abs(x.y)<0.9?V3(0,1,0):V3(0,0,1),y.sub(x.clone().multiplyScalar(y.dot(x)));y.normalize();const z=V3().crossVectors(x,y);return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z));}
+const LIMBS=[['uaL','laL','hL',1],['uaR','laR','hR',1],['ulL','llL','fL',-1],['ulR','llR','fR',-1]];
 class Rig{
  constructor(holder,map){this.h=holder;this.b={};const all={};holder.traverse(o=>{if(o.isBone)all[o.name]=o;});for(const k in map)if(map[k]&&all[map[k]])this.b[k]=all[map[k]];
-  holder.updateMatrixWorld(true);const hq=holder.getWorldQuaternion(new THREE.Quaternion()),hqi=hq.clone().invert();const wp=b=>b.getWorldPosition(V3());
-  this.rq={};this.rw={};this.dl={};this.fing=[];
-  for(const k in this.b){const b=this.b[k],wq=b.getWorldQuaternion(new THREE.Quaternion());this.rq[k]=b.quaternion.clone();this.rw[k]=hqi.clone().multiply(wq);
-   let d=null;const ck=CHILD[k];if(ck&&this.b[ck])d=wp(this.b[ck]).sub(wp(b));
-   else if(k==='hL'||k==='hR'){const c=b.children.find(c=>c.isBone);d=c?wp(c).sub(wp(b)):null;}
-   else if(k==='head'||k==='neck')d=V3(0,1,0).applyQuaternion(hq);
-   if(d&&d.lengthSq()>1e-10)this.dl[k]=d.normalize().applyQuaternion(wq.clone().invert());}
-  const toR=v=>v.applyQuaternion(hqi);
-  this.rHips=basisQ(toR(wp(this.b.ulL).sub(wp(this.b.ulR))),toR(wp(this.b.chest).sub(wp(this.b.hips))));
-  this.rChest=basisQ(toR(wp(this.b.uaL).sub(wp(this.b.uaR))),toR(wp(this.b.head).sub(wp(this.b.chest))));
-  this.rHead=basisQ(V3(1,0,0),V3(0,1,0));
-  this.foot0=Math.min(wp(this.b.fL).y,wp(this.b.fR).y)-holder.position.y;
-  for(const n in all)if(/^(Index|Middle|Ring|Pinky)[0-9]/.test(n))this.fing.push([all[n],all[n].quaternion.clone()]);
+  holder.updateMatrixWorld(true);const hq=holder.getWorldQuaternion(new THREE.Quaternion()),hqi=hq.clone().invert();const wp=b=>b.getWorldPosition(V3()).applyQuaternion(hqi);
+  this.rq={};this.rw={};this.rb={};this.n={};
+  for(const k in this.b){const b=this.b[k];this.rq[k]=b.quaternion.clone();this.rw[k]=hqi.clone().multiply(b.getWorldQuaternion(new THREE.Quaternion()));}
+  this.rb.hips=basisQ(wp(this.b.ulL).sub(wp(this.b.ulR)),wp(this.b.chest).sub(wp(this.b.hips)));
+  this.rb.chest=basisQ(wp(this.b.uaL).sub(wp(this.b.uaR)),wp(this.b.head).sub(wp(this.b.chest)));
+  this.rb.head=basisQ(V3(1,0,0),V3(0,1,0));
+  for(const [a,b,c,s] of LIMBS){const A=wp(this.b[a]),B=wp(this.b[b]),C=wp(this.b[c]),d1=B.clone().sub(A),d2=C.clone().sub(B),hint=V3(0,0,s);
+   const nr=V3().crossVectors(d1,hint).normalize();this.rb[a]=basisQ(d1,nr);this.rb[b]=basisQ(d2,nr);}
+  this.foot0=Math.min(this.b.fL.getWorldPosition(V3()).y,this.b.fR.getWorldPosition(V3()).y)-holder.position.y;
  }
- setBasis(k,r,u,rest){const b=this.b[k];if(!b)return;this.h.getWorldQuaternion(_q1);const qt=basisQ(r,u);
-  _q2.copy(qt).multiply(_q3.copy(rest).invert()).multiply(this.rw[k]);_q2.premultiply(_q1);b.parent.getWorldQuaternion(_q3).invert();b.quaternion.copy(_q3.multiply(_q2));b.updateMatrixWorld(true);}
- aim(k,dir){const b=this.b[k],dl=this.dl[k];if(!b||!dl||dir.lengthSq()<1e-10)return;this.h.getWorldQuaternion(_q1);_v1.copy(dir).normalize().applyQuaternion(_q1);
-  b.parent.getWorldQuaternion(_q2);_q3.copy(_q2).multiply(this.rq[k]);_v2.copy(dl).applyQuaternion(_q3);const qd=new THREE.Quaternion().setFromUnitVectors(_v2,_v1);
-  qd.multiply(_q3);b.quaternion.copy(_q2.invert().multiply(qd));b.updateMatrixWorld(true);}
- pose(T,curl=0.25){
+ setBasis(k,r,u){const b=this.b[k];if(!b)return;this.h.getWorldQuaternion(_q1);const qt=basisQ(r,u);
+  _q2.copy(qt).multiply(_q3.copy(this.rb[k]).invert()).multiply(this.rw[k]);_q2.premultiply(_q1);b.parent.getWorldQuaternion(_q3).invert();b.quaternion.copy(_q3.multiply(_q2));b.updateMatrixWorld(true);}
+ limb(a,b,c,s,A,B,C,fwd){const d1=B.clone().sub(A),d2=C.clone().sub(B);let n=V3().crossVectors(d1,d2);const bend=n.length()/(d1.length()*d2.length()+1e-6);
+  const hint=V3().crossVectors(d1,fwd.clone().multiplyScalar(s)).normalize();
+  if(bend<0.35){n.normalize();if(n.dot(hint)<0)n.negate();n.lerp(hint,1-bend/0.35);}
+  n.normalize();const prev=this.n[a];if(prev){n.lerp(prev,0.35).normalize();}this.n[a]=n.clone();
+  this.setBasis(a,d1,n);this.setBasis(b,d2,n);}
+ pose(T){
   for(const k in this.b)this.b[k].quaternion.copy(this.rq[k]);this.h.updateMatrixWorld(true);
   const hip=T.hipL.clone().add(T.hipR).multiplyScalar(.5),sh=T.shL.clone().add(T.shR).multiplyScalar(.5);
-  this.setBasis('hips',T.hipL.clone().sub(T.hipR),sh.clone().sub(hip),this.rHips);
-  this.aim('spine',sh.clone().sub(hip));
-  this.setBasis('chest',T.shL.clone().sub(T.shR),T.head.clone().sub(sh),this.rChest);
-  if(this.b.neck)this.aim('neck',T.head.clone().sub(sh));
-  if(T.earL&&T.earR)this.setBasis('head',T.earL.clone().sub(T.earR),T.head.clone().sub(sh),this.rHead);else this.aim('head',T.head.clone().sub(sh));
-  this.aim('uaL',T.elL.clone().sub(T.shL));this.aim('laL',T.wrL.clone().sub(T.elL));if(T.ixL)this.aim('hL',T.ixL.clone().sub(T.wrL));
-  this.aim('uaR',T.elR.clone().sub(T.shR));this.aim('laR',T.wrR.clone().sub(T.elR));if(T.ixR)this.aim('hR',T.ixR.clone().sub(T.wrR));
-  this.aim('ulL',T.knL.clone().sub(T.hipL));this.aim('llL',T.anL.clone().sub(T.knL));
-  this.aim('ulR',T.knR.clone().sub(T.hipR));this.aim('llR',T.anR.clone().sub(T.knR));
-  for(const [b,q] of this.fing){b.quaternion.copy(q);b.rotateX(curl*0.9);}
+  this.setBasis('hips',T.hipL.clone().sub(T.hipR),sh.clone().sub(hip));
+  this.setBasis('chest',T.shL.clone().sub(T.shR),T.head.clone().sub(sh));
+  if(T.earL&&T.earR)this.setBasis('head',T.earL.clone().sub(T.earR),T.head.clone().sub(sh));
+  const fwd=V3().crossVectors(T.shL.clone().sub(T.shR),T.head.clone().sub(sh)).normalize();
+  this.limb('uaL','laL','hL',1,T.shL,T.elL,T.wrL,fwd);this.limb('uaR','laR','hR',1,T.shR,T.elR,T.wrR,fwd);
+  this.limb('ulL','llL','fL',-1,T.hipL,T.knL,T.anL,fwd);this.limb('ulR','llR','fR',-1,T.hipR,T.knR,T.anR,fwd);
  }
  feetY(){this.h.updateMatrixWorld(true);const a=this.b.fL.getWorldPosition(_v1).y,b=this.b.fR.getWorldPosition(_v2).y;return Math.min(a,b);}
  bone(k){return this.b[k].getWorldPosition(V3());}
 }
+// palette variants
+const vtex={};
+function hsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;if(mx!==mn){const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;}return [h,s,l];}
+function rgb(h,s,l){const f=n=>{const k=(n+h/30)%12,a=s*Math.min(l,1-l);return l-a*Math.max(-1,Math.min(k-3,9-k,1));};return [f(0)*255,f(8)*255,f(4)*255];}
+function variantTex(map,c){const key=map.uuid+c.hue+c.tint;if(vtex[key])return vtex[key];const img=map.image,cv2=document.createElement('canvas');cv2.width=img.width;cv2.height=img.height;const g=cv2.getContext('2d');g.drawImage(img,0,0);
+ const d=g.getImageData(0,0,cv2.width,cv2.height),p=d.data,tc=c.tint?new THREE.Color(c.tint):null;
+ for(let i=0;i<p.length;i+=4){let [h,s,l]=hsl(p[i],p[i+1],p[i+2]);const skin=h>4&&h<48&&s>0.1&&s<0.85&&l>0.42&&l<0.92;if(skin)continue;
+  if(s>0.22){const [r,g2,b]=rgb(c.hue,Math.min(1,s*1.05),l);p[i]=r;p[i+1]=g2;p[i+2]=b;}
+  else if(tc){const a=c.tintA||0.4;p[i]=p[i]*(1-a)+tc.r*255*a*l*1.6;p[i+1]=p[i+1]*(1-a)+tc.g*255*a*l*1.6;p[i+2]=p[i+2]*(1-a)+tc.b*255*a*l*1.6;}}
+ g.putImageData(d,0,0);const t2=new THREE.CanvasTexture(cv2);t2.flipY=map.flipY;t2.colorSpace=map.colorSpace;t2.magFilter=map.magFilter;t2.minFilter=map.minFilter;return vtex[key]=t2;}
+let CLIPS=null;
+async function clips(){if(CLIPS)return CLIPS;const g=await loadGLB('assets/chars/K_anims.glb');CLIPS={};for(const c of g.animations)CLIPS[c.name]=c;return CLIPS;}
 const INST=[null,null,null];
-async function makeChar(key){const c=CH[key],g=await loadGLB('assets/chars/'+c.f+'.glb'),m=SkeletonUtils.clone(g.scene);
- m.traverse(o=>{if(o.isMesh){if(/Shield|Sword|Wand|Staff|Spellbook|Axe|Crossbow|Dagger|Mug|Arrow|Quiver|Smoke/i.test(o.name)||/handslot/i.test(o.parent&&o.parent.name)){o.visible=false;return;}
-  o.castShadow=true;o.frustumCulled=false;const mt=o.material;if(mt&&mt.isMeshStandardMaterial){o.material=mt.clone();o.material.roughness=Math.max(0.45,mt.roughness*0.9);o.material.envMapIntensity=0.9;}}});
- m.updateMatrixWorld(true);const box=new THREE.Box3();m.traverse(o=>{if(o.isSkinnedMesh&&o.visible){o.geometry.computeBoundingBox();const bb=o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld);box.union(bb);}});
- const h=box.max.y-box.min.y||1.8,s=(c.k?1.55:1.72)/h;m.scale.setScalar(s);const holder=new THREE.Group();holder.add(m);
- const rig=new Rig(holder,c.k?MAPK:MAPQ);
+async function makeChar(key){const c=CH[key],[g,cl]=await Promise.all([loadGLB('assets/chars/'+c.f+'.glb'),clips()]),m=SkeletonUtils.clone(g.scene);
+ m.traverse(o=>{if(o.isMesh){if(/Shield|Sword|Wand|Staff|Spellbook|Axe|Crossbow|Dagger|Mug|Arrow|Quiver|Smoke|Blade|Scythe/i.test(o.name)||/handslot/i.test(o.parent&&o.parent.name)){o.visible=false;return;}
+  o.castShadow=true;o.frustumCulled=false;const mt=o.material;if(mt&&mt.isMeshStandardMaterial){o.material=mt.clone();o.material.roughness=0.62;o.material.metalness=0;o.material.envMapIntensity=0.85;if(c.hue!=null&&mt.map)o.material.map=variantTex(mt.map,c);}}});
+ m.traverse(o=>{if(o.isBone&&/handslot/i.test(o.name))o.traverse(x=>{if(x.isMesh)x.visible=false;});});
+ m.updateMatrixWorld(true);const box=new THREE.Box3();m.traverse(o=>{if(o.isSkinnedMesh&&o.visible){o.geometry.computeBoundingBox();box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld));}});
+ const h=box.max.y-box.min.y||1.8,s=1.6/h;m.scale.setScalar(s);const holder=new THREE.Group();holder.add(m);
+ const rig=new Rig(holder,MAPK);
+ const mixer=new THREE.AnimationMixer(m),acts={};for(const n in cl){acts[n]=mixer.clipAction(cl[n]);}
+ ['Jump_Start','Jump_Land','Dodge_Forward','Hit_A','Hit_B'].forEach(n=>{if(acts[n]){acts[n].setLoop(THREE.LoopOnce);acts[n].clampWhenFinished=true;}});
  const blob=new THREE.Mesh(new THREE.CircleGeometry(0.45,24),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:0.28,depthWrite:false}));blob.rotation.x=-Math.PI/2;blob.position.y=0.01;
- return {key,holder,rig,blob,y:0,vy:0};}
+ return {key,holder,rig,blob,mixer,acts,cur:null,y:0,vy:0};}
+function play(ci,name,fade=0.2,ts=1){const a=ci.acts[name];if(!a)return;a.timeScale=ts;if(ci.cur===name)return;const prev=ci.cur&&ci.acts[ci.cur];
+ a.reset();a.enabled=true;a.setEffectiveWeight(1);a.play();if(prev)prev.crossFadeTo(a,fade,false);ci.cur=name;}
+function stopClips(ci){if(ci.cur){ci.mixer.stopAllAction();ci.cur=null;}}
 const loading={};
 function ensureChar(i){const key=S.players[i];if(INST[i]&&INST[i].key===key)return INST[i];const tag=i+':'+key;if(loading[tag])return null;
  loading[tag]=1;makeChar(key).then(o=>{delete loading[tag];if(S.players[i]!==key)return;if(INST[i]){G.chars.remove(INST[i].holder);scene.remove(INST[i].blob);}INST[i]=o;G.chars.add(o.holder);scene.add(o.blob);}).catch(e=>{delete loading[tag];console.error(e);});
@@ -697,7 +715,6 @@ function hideLoader(){loader.classList.remove('on');}
 async function wake(){try{if('wakeLock' in navigator){wakeLock=await navigator.wakeLock.request('screen');}}catch(e){}}
 
 async function startPlay(demo){
- if(!demo)await (async()=>{})();
  audioInit();if(!seq.on)musicStart();demoPlay=demo;
  slots=[0,1,2].map(newSlot);parts.length=0;texts.length=0;
  if(!demo){
@@ -810,11 +827,11 @@ function raceFrame3(dt,now,bp){
  if(RC.phase==='run'){const fin=RC.lanes.filter(l=>l.fin);if(fin.length&&!RC.doneT)RC.doneT=t;if(RC.doneT&&(fin.length===n||t-RC.doneT>10)){RC.phase='done';showRaceEnd();}}
  for(let i=0;i<3;i++){if(INST[i]){INST[i].holder.visible=i<n;INST[i].blob.visible=i<n;}}
  RC.lanes.forEach((L,i)=>{const ci=INST[i];if(!ci)return;const X=i*TRACK_GAP;
-  const mode=L.y>0.05?'jump':L.duck?'duck':L.speed>0.5?'run':'idle',amp=clamp(L.speed/MAXV,0,1)*0.85+0.15;
-  const stride=0.75+L.speed*0.11;L.ph+=dt*(mode==='idle'?1.5:Math.PI*Math.max(L.speed,0.6)/stride);
-  L.T=lerpT(L.T,runTargets(L.ph,mode,amp),1-Math.exp(-dt*(mode==='run'?30:12)));
-  const h=ci.holder;h.rotation.set(0,Math.PI,0);h.position.set(X+L.lx,0,-L.dist);ci.rig.pose(L.T,mode==='run'?0.9:0.4);
-  const off=ci.rig.foot0-(ci.rig.feetY()-h.position.y);L.gy=lerp(L.gy,off,1-Math.exp(-dt*20));h.position.y=(mode==='jump'?Math.max(L.gy,0):L.gy)+L.y;
+  let clip='Idle',ts=1;
+  if(L.fin)clip='Cheer';else if(L.stumble>0.45)clip='Hit_A';else if(L.y>0.05)clip='Jump_Idle';else if(L.duck)clip='Dodge_Forward';
+  else if(L.speed>3.2){clip='Running_A';ts=clamp(L.speed/6.2,0.7,1.45);}else if(L.speed>0.4){clip='Walking_A';ts=clamp(L.speed/1.5,0.6,1.8);}
+  play(ci,clip,clip==='Jump_Idle'||clip==='Dodge_Forward'?0.1:0.2,ts);ci.mixer.update(dt);
+  const h=ci.holder;h.rotation.set(0,Math.PI,0);h.position.set(X+L.lx,L.y,-L.dist);
   h.rotation.z=(L.lx-(L.lane-1)*LW)*0.08;
   h.visible=!(L.flash>0&&Math.floor(t*16)%2);
   ci.blob.position.set(X+L.lx,0.02,-L.dist);ci.blob.scale.setScalar(clamp(1-L.y*0.25,0.4,1));
@@ -889,12 +906,13 @@ function danceFrame(dt,now,b,bp,act){
  const n=S.count,R={x:0,y:0,w:W,h:H};let k=0;
  for(let i=0;i<3;i++){const ci=i<n?ensureChar(i):INST[i];if(!ci)continue;const vis=i<n;ci.holder.visible=vis;ci.blob.visible=vis;if(!vis)continue;
   const s=slots[i],live=state==='play'&&!demoPlay&&s.Wd&&s.Kv&&now-s.lastSeen<1000;
-  const T=live?camTargets(s):danceTargets(b+i*0.37,i*1.1);s.T=lerpT(s.T,T,live?1:1-Math.exp(-dt*12));
-  const h=ci.holder;h.rotation.set(0,0,0);let tx=(i-(n-1)/2)*1.45;
+  const h=ci.holder;h.rotation.set(0,0,0);let tx=(i-(n-1)/2)*1.45;const idle=state==='play'&&!demoPlay&&!live;
   if(live&&cam.videoWidth){const hx=mid(s.Kv.lh,s.Kv.rh).x/cam.videoWidth;tx=clamp((hx-0.5)*6.5,-3.2,3.2);
    const hy=mid(s.Kv.lh,s.Kv.rh).y;if(s.baseHip==null)s.baseHip=hy;const dv=(s.baseHip-hy)/(s.sv||1);if(Math.abs(dv)<0.2||dv<0)s.baseHip=lerp(s.baseHip,hy,0.03);ci.vy=clamp(dv*0.55,0,1.1);}else ci.vy=0;
   ci.x=ci.x==null?tx:lerp(ci.x,tx,1-Math.exp(-dt*8));h.position.set(ci.x,0,0);
-  ci.rig.pose(s.T,clamp(0.6-s.energy*0.5,0.1,0.6));const off=ci.rig.foot0-(ci.rig.feetY()-h.position.y);ci.y=ci.y==null?off:lerp(ci.y,off,1-Math.exp(-dt*18));h.position.y=ci.y+ci.vy;
+  if(idle){play(ci,'Idle',0.3);ci.mixer.update(dt);ci.y=0;h.position.y=0;}
+  else{stopClips(ci);const T=live?camTargets(s):danceTargets(b+i*0.37,i*1.1);s.T=lerpT(s.T,T,live?1:1-Math.exp(-dt*12));
+   ci.rig.pose(s.T);const off=ci.rig.foot0-(ci.rig.feetY()-h.position.y);ci.y=ci.y==null?off:lerp(ci.y,off,1-Math.exp(-dt*18));h.position.y=ci.y+ci.vy;}
   ci.blob.position.set(ci.x,0.02,0);ci.blob.scale.setScalar(clamp(1-ci.vy*0.4,0.5,1));k++;}
  const dist=4.4+(n-1)*1.4,sw=Math.sin(t*0.25)*0.35;camD.aspect=W/H;camD.fov=W/H<0.9?60:40;camD.updateProjectionMatrix();
  camD.position.set(sw,1.5,dist*(W/H<0.9?1.35:1));camD.lookAt(0,1.0,0);
@@ -941,11 +959,11 @@ window.__shot=async(kind,key,w=360,h=300)=>{
  const oldPlayers=S.players.slice(),oldCount=S.count,oldBg=S.bg;R3.setPixelRatio(1);R3.setSize(w,h,false);W=w;H=h;
  const show=async()=>{for(let k=0;k<40;k++){let ok=true;for(let i=0;i<S.count;i++)if(!ensureChar(i))ok=false;if(ok&&!danceBuilding&&DS.built===S.bg)break;if(DS.built!==S.bg&&!danceBuilding){danceBuilding=true;await buildDance(S.bg);danceBuilding=false;}await new Promise(r=>setTimeout(r,100));}};
  if(kind==='char'){S.players[0]=key;S.count=1;S.bg='stage';await show();for(let i=0;i<3;i++)if(INST[i]){INST[i].holder.visible=i===0;INST[i].blob.visible=i===0;}
-  G.dance.visible=false;setSky('#3a1a72','#8a5cff','#5a2aa0',100,200);const ci=INST[0];ci.rig.pose(danceTargets(1.5,0),0.3);ci.holder.position.set(0,0,0);const off=ci.rig.foot0-ci.rig.feetY();ci.holder.position.y=off;
-  camD.aspect=w/h;camD.fov=30;camD.updateProjectionMatrix();camD.position.set(0,1.0,3.9);camD.lookAt(0,0.9,0);R3.setScissorTest(false);R3.setViewport(0,0,w,h);R3.render(scene,camD);}
- else if(kind==='stage'||kind==='game'){S.bg=kind==='stage'?key:(key==='freeze'?'snow':'stage');S.count=key==='race'?1:2;if(kind==='game')S.players=key==='free'?['mia','leo','ella']:['luna','leo','ella'];await show();
+  G.dance.visible=false;setSky('#3a1a72','#8a5cff','#5a2aa0',100,200);const ci=INST[0];ci.holder.rotation.set(0,0.35,0);ci.holder.position.set(0,0,0);ci.mixer.stopAllAction();ci.cur=null;play(ci,'Cheer',0);ci.mixer.update(0.55);
+  camD.aspect=w/h;camD.fov=30;camD.updateProjectionMatrix();camD.position.set(0,0.95,3.6);camD.lookAt(0,0.8,0);R3.setScissorTest(false);R3.setViewport(0,0,w,h);R3.render(scene,camD);}
+ else if(kind==='stage'||kind==='game'){S.bg=kind==='stage'?key:(key==='freeze'?'snow':'stage');S.count=key==='race'?1:2;if(kind==='game')S.players=key==='free'?['pinkknight','mage','fairy']:['icemage','aqua','fairy'];await show();
   danceFrame(0.016,performance.now(),1.5,1,[]);}
- if(kind==='world'||(kind==='game'&&key==='race')){const wk=kind==='world'?key:'forest';S.world=wk;S.count=1;S.players[0]=kind==='game'?'jack':'mia';RC.course=makeCourse(WK.indexOf(wk)*97+11);RC.lanes=[newLane(0)];RC.lanes[0].dist=12;RC.lanes[0].speed=7;RC.lanes[0].ph=1;
+ if(kind==='world'||(kind==='game'&&key==='race')){const wk=kind==='world'?key:'forest';S.world=wk;S.count=1;S.players[0]=kind==='game'?'pinkknight':'fairy';RC.course=makeCourse(WK.indexOf(wk)*97+11);RC.lanes=[newLane(0)];RC.lanes[0].dist=12;RC.lanes[0].speed=7;RC.lanes[0].ph=1;
   await buildRace(wk,1,RC.course);while(!ensureChar(0))await new Promise(r=>setTimeout(r,60));RC.ready=true;RC.t0=t-10;RC.phase='run';RC.on=true;const sv=demoPlay;demoPlay=true;raceFrame3(0.016,performance.now(),1);demoPlay=sv;RC.on=false;}
  const url=gl.toDataURL('image/jpeg',0.85);S.players=oldPlayers;S.count=oldCount;S.bg=oldBg;resize();return url;};
 
